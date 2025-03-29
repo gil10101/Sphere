@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sphere</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        overflow: hidden;
+        background: #151414;
+      }
+      .canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        will-change: transform;
+        transform: translate3d(0px, 0%, 0px) scale3d(1, 1, 1) rotateX(0deg) rotateY(0deg) rotateZ(0deg) skew(0deg, 0deg);
+        transform-style: preserve-3d;
+      }
+      canvas.webgl {
+        position: absolute;
+        top: 0;
+        left: 0;
+        outline: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas-container">
+      <canvas class="webgl"></canvas>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html> 
