@@ -24,6 +24,87 @@ const sphereMaterial = new THREE.PointsMaterial({
 const sphere = new THREE.Points(sphereGeometry, sphereMaterial);
 scene.add(sphere);
 
+// Add horizontal rings of points
+function createHorizontalRings() {
+    const geometry = new THREE.BufferGeometry();
+    const radius = 1.01; // Slightly larger than the sphere
+    const ringsCount = isMobile ? 10 : 20;
+    const pointsPerRing = isMobile ? 80 : 120;
+    const positions = new Float32Array(ringsCount * pointsPerRing * 3);
+    
+    let index = 0;
+    
+    // Create horizontal rings at different heights
+    for (let ring = 0; ring < ringsCount; ring++) {
+        const y = -0.9 + (ring * 1.8 / (ringsCount - 1)); // From -0.9 to 0.9
+        const ringRadius = radius * Math.cos(Math.asin(y / radius)); // Calculate radius at this height
+        
+        for (let point = 0; point < pointsPerRing; point++) {
+            const angle = (point / pointsPerRing) * Math.PI * 2;
+            
+            positions[index++] = Math.cos(angle) * ringRadius;
+            positions[index++] = y;
+            positions[index++] = Math.sin(angle) * ringRadius;
+        }
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    const material = new THREE.PointsMaterial({
+        size: isMobile ? 0.003 : 0.002,
+        sizeAttenuation: true,
+        color: new THREE.Color('#ffffff'),
+        transparent: true,
+        opacity: 0.7,
+        depthWrite: false,
+    });
+    
+    return new THREE.Points(geometry, material);
+}
+
+const horizontalRings = createHorizontalRings();
+scene.add(horizontalRings);
+
+// Add vertical rings of points
+function createVerticalRings() {
+    const geometry = new THREE.BufferGeometry();
+    const radius = 1.02; // Slightly larger than the horizontal rings
+    const ringsCount = isMobile ? 8 : 16;
+    const pointsPerRing = isMobile ? 80 : 120;
+    const positions = new Float32Array(ringsCount * pointsPerRing * 3);
+    
+    let index = 0;
+    
+    // Create vertical rings at different angles
+    for (let ring = 0; ring < ringsCount; ring++) {
+        const angle = (ring / ringsCount) * Math.PI; // From 0 to π
+        
+        for (let point = 0; point < pointsPerRing; point++) {
+            const heightAngle = (point / pointsPerRing) * Math.PI * 2;
+            
+            positions[index++] = Math.cos(angle) * Math.cos(heightAngle) * radius;
+            positions[index++] = Math.sin(heightAngle) * radius;
+            positions[index++] = Math.sin(angle) * Math.cos(heightAngle) * radius;
+        }
+    }
+    
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    
+    const material = new THREE.PointsMaterial({
+        size: isMobile ? 0.003 : 0.002,
+        sizeAttenuation: true,
+        color: new THREE.Color('#ffffff'),
+        transparent: true,
+        opacity: 0.6,
+        depthWrite: false,
+    });
+    
+    return new THREE.Points(geometry, material);
+}
+
+const verticalRings = createVerticalRings();
+scene.add(verticalRings);
+
 // Create star field
 function createStarField(count, size, spread) {
     const geometry = new THREE.BufferGeometry();
@@ -106,6 +187,13 @@ function animate() {
     sphere.rotation.y += deltaTime * 0.1;
     sphere.rotation.x += (targetRotationX - sphere.rotation.x) * 0.05;
     sphere.rotation.y += (targetRotationY - sphere.rotation.y) * 0.05;
+    
+    // Make the rings follow the sphere's rotation
+    horizontalRings.rotation.y = sphere.rotation.y;
+    horizontalRings.rotation.x = sphere.rotation.x;
+    
+    verticalRings.rotation.y = sphere.rotation.y;
+    verticalRings.rotation.x = sphere.rotation.x;
 
     controls.update();
     renderer.render(scene, camera);
